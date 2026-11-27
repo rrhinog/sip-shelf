@@ -12,13 +12,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-<<<<<<< HEAD
-      includeAssets: ['catalog.json', 'icon.svg'],
-||||||| parent of 7016f30 (Icons: original Sip Shelf mark, generated PNGs, manifest and apple-touch-icon wiring, e2e check)
-      includeAssets: ['catalog.fixture.json', 'icon.svg'],
-=======
-      includeAssets: ['catalog.fixture.json', 'icons/icon.svg', 'icons/*.png'],
->>>>>>> 7016f30 (Icons: original Sip Shelf mark, generated PNGs, manifest and apple-touch-icon wiring, e2e check)
+      includeAssets: ['catalog.json', 'icons/icon.svg', 'icons/*.png'],
       manifest: {
         name: 'Sip Shelf',
         short_name: 'Sip Shelf',
