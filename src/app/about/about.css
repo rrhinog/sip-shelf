@@ -1,0 +1,195 @@
+/* About screen and device notice. Collector's Case: playful, sticker-like cards with a dark outline.
+   Colors come from the theme's custom properties so these follow the Active bottle; the fallbacks only
+   apply before a theme is set. */
+.about,
+.notice-card {
+  --ink: #22201c;
+  font-family: Nunito, 'Avenir Next', system-ui, sans-serif;
+}
+
+.about {
+  padding: 0 0 calc(7rem + env(safe-area-inset-bottom));
+  color: var(--color-text, #000);
+}
+
+.about-band {
+  background: var(--color-primary, #2b6cb0);
+  color: var(--color-on-primary, #fff);
+  padding: calc(1.25rem + env(safe-area-inset-top)) 1.25rem 0.5rem;
+}
+
+.about-band h1,
+.about h2,
+.notice-card h2,
+.notice-sticker,
+.about-button {
+  font-family: Fredoka, 'Arial Rounded MT Bold', system-ui, sans-serif;
+}
+
+.about-band h1 {
+  margin: 0.5rem 0 0;
+  font-size: 2.6rem;
+  line-height: 1;
+}
+
+.about-band p {
+  margin: 0.4rem 0 0;
+  font-weight: 700;
+}
+
+.about-wave {
+  display: block;
+  width: 100%;
+  height: 1.9rem;
+  margin-top: -1px;
+  color: var(--color-primary, #2b6cb0);
+}
+
+.about-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  padding: 0.25rem 1.1rem 0;
+  max-width: 32rem;
+  margin: 0 auto;
+}
+
+/* A card sits on a plank like a bottle on the Shelf. */
+.about-card {
+  background: var(--color-surface, #eee);
+  color: var(--color-text, #000);
+  border: 2px solid var(--ink);
+  border-radius: 1.1rem;
+  padding: 1rem 1.1rem 1.1rem;
+  box-shadow: 0 0.4rem 0 var(--color-secondary, #888);
+}
+
+.about h2 {
+  margin: 0 0 0.4rem;
+  font-size: 1.3rem;
+}
+
+.about p {
+  margin: 0.4rem 0 0;
+  line-height: 1.5;
+}
+
+.about a {
+  color: var(--color-link, #1a56a0);
+  font-weight: 800;
+  text-underline-offset: 0.2em;
+}
+
+.about-links {
+  list-style: none;
+  padding: 0;
+  margin: 0.6rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+/* Pill links: white label, dark outline, at least 44px tall to tap. */
+.about-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 1rem;
+  border: 2px solid var(--ink);
+  border-radius: 1.4rem;
+  background: #fff;
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 800;
+}
+
+.about-links a:focus-visible,
+.about-button:focus-visible {
+  outline: 3px solid var(--color-text, #000);
+  outline-offset: 2px;
+}
+
+.about-disclaimer {
+  background: var(--color-accent, #e4572e);
+  color: var(--color-on-accent, #fff);
+}
+
+.about-disclaimer p {
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.about-button {
+  min-height: 44px;
+  padding: 0 1.4rem;
+  border: 2px solid var(--ink);
+  border-radius: 1.4rem;
+  background: #fff;
+  color: var(--ink);
+  font-size: 1.05rem;
+  font-weight: 700;
+  box-shadow: 0 0.2rem 0 rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+}
+
+/* One-time notice */
+.notice-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom));
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.notice-card {
+  position: relative;
+  width: 100%;
+  max-width: 26rem;
+  box-sizing: border-box;
+  background: var(--color-bg, #fff);
+  color: var(--color-text, #000);
+  border: 2px solid var(--ink);
+  border-radius: 1.4rem;
+  padding: 1.6rem 1.25rem 1.25rem;
+  box-shadow: 0 0.4rem 0 var(--color-secondary, #888);
+  animation: notice-in 0.28s ease-out;
+}
+
+.notice-sticker {
+  position: absolute;
+  top: -0.9rem;
+  right: 1rem;
+  transform: rotate(-8deg);
+  padding: 0.15rem 0.7rem;
+  border: 2px solid var(--ink);
+  border-radius: 0.8rem;
+  background: var(--color-accent, #e4572e);
+  color: var(--color-on-accent, #fff);
+  font-weight: 700;
+}
+
+.notice-card h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.35rem;
+}
+
+.notice-card p {
+  margin: 0 0 1rem;
+  line-height: 1.5;
+}
+
+@keyframes notice-in {
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notice-card {
+    animation: none;
+  }
+}
