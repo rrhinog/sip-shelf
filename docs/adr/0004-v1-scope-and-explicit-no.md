@@ -1,0 +1,3 @@
+# v1 scope: register, shelf, active bottle, themed app; no sync, tracking or backend
+
+The weekend v1 (due Sun 2026-11-29) is: register a Bottle, keep a Shelf, choose an Active bottle, and theme the app from its Palette, with Overrides and Custom colorways, installable and working offline, deployed to GitHub Pages under the MIT license with an unaffiliated disclaimer and a one-time notice that the Shelf lives only on this device (decided 2026-11-27, Ryan: "Yes"). Left out on purpose: sync and accounts (ADR 0002), water or sip tracking, bottle photos, notifications, use-study analytics, a file export/import backup, a non-US catalog, bags and accessories, and a native app. Export/import is the first candidate to add after v1.
