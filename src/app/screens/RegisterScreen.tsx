@@ -38,9 +38,12 @@ function StepDots({ current }: { current: 1 | 2 | 3 | 4 }) {
 }
 
 function ColorField({ label, value, onChange }: { label: string; value: string; onChange(hex: string): void }) {
+  // The round swatch is drawn by us; the real color input sits invisibly on top, so a tap opens the phone's own picker.
   return (
     <label className="color-field">
-      <input type="color" value={value} onChange={(e) => onChange(e.target.value)} />
+      <span className="color-swatch" style={{ background: value }}>
+        <input type="color" value={value} onChange={(e) => onChange(e.target.value)} />
+      </span>
       <span>{label}</span>
     </label>
   );
@@ -203,7 +206,7 @@ export function RegisterScreen({
         <>
           {picked && !picked.sampled ? (
             <p className="callout" role="status">
-              Colors not sampled yet — you can set your own on the next step. Until then it shows a neutral color.
+              Colors not sampled yet — you can set your own on the next step.
             </p>
           ) : null}
           <button type="button" className="dashed-button" onClick={() => dispatch({ type: 'startCustom', name: query.trim() })}>

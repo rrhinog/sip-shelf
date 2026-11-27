@@ -255,8 +255,8 @@ button {
 
 .sticker {
   position: absolute;
-  top: 6px;
-  right: 0;
+  top: 46px;
+  right: -4px;
   transform: rotate(-10deg);
   padding: 3px 10px;
   border-radius: 12px;
@@ -515,6 +515,7 @@ button {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  justify-content: flex-end;
   gap: 2px;
   padding: 12px 14px 14px;
   border-radius: 22px;
@@ -527,7 +528,8 @@ button {
 }
 
 .card .bottle-art {
-  margin-bottom: 6px;
+  margin-bottom: auto;
+  padding-bottom: 6px;
 }
 
 .card-name {
@@ -711,31 +713,31 @@ button {
   font-weight: 800;
 }
 
-.color-field input[type='color'] {
-  -webkit-appearance: none;
-  appearance: none;
+.color-swatch {
+  position: relative;
+  display: block;
   width: 56px;
   height: 56px;
-  padding: 0;
   border-radius: 50%;
   border: 2px solid var(--color-text);
-  background: transparent;
   overflow: hidden;
-  cursor: pointer;
 }
 
-.color-field input[type='color']::-webkit-color-swatch-wrapper {
+.color-swatch:focus-within {
+  outline: 3px solid var(--color-link);
+  outline-offset: 2px;
+}
+
+.color-swatch input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
   padding: 0;
-}
-
-.color-field input[type='color']::-webkit-color-swatch {
   border: none;
-  border-radius: 50%;
-}
-
-.color-field input[type='color']::-moz-color-swatch {
-  border: none;
-  border-radius: 50%;
+  opacity: 0;
+  cursor: pointer;
 }
 
 /* ---------- Tab bar ---------- */
