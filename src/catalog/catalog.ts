@@ -1,8 +1,8 @@
-import type { Catalog, Colorway, Model, Offering, Palette } from '../domain/types';
+import type { Catalog, Colorway, Confidence, Model, Offering, Palette } from '../domain/types';
 import { isHexColor, parseHex, toHex } from '../theme/contrast';
 
 /** Where the app loads its Catalog from (relative to the deployed base path). */
-export const CATALOG_URL = `${import.meta.env.BASE_URL}catalog.fixture.json`;
+export const CATALOG_URL = `${import.meta.env.BASE_URL}catalog.json`;
 
 function fail(message: string): never {
   throw new Error(`Invalid catalog: ${message}`);
@@ -27,6 +27,24 @@ function sizes(value: unknown, what: string): number[] {
   return value.map((s) => {
     if (typeof s !== 'number' || !Number.isFinite(s) || s <= 0) fail(`${what} has a bad size ${JSON.stringify(s)}`);
     return s;
+  });
+}
+
+function bool(value: unknown, what: string): boolean {
+  if (typeof value !== 'boolean') fail(`${what} must be true or false`);
+  return value;
+}
+
+function confidence(value: unknown, what: string): Confidence {
+  if (value !== 'high' && value !== 'medium' && value !== 'low') fail(`${what} must be high, medium or low`);
+  return value;
+}
+
+function webLinks(value: unknown, what: string): string[] {
+  if (!Array.isArray(value)) fail(`${what} must be a list of web links`);
+  return value.map((u) => {
+    if (typeof u !== 'string' || !/^https?:\/\/\S+$/.test(u)) fail(`${what} has a bad link ${JSON.stringify(u)}`);
+    return u;
   });
 }
 
@@ -62,11 +80,21 @@ export function parseCatalog(raw: unknown): Catalog {
       const modelId = str(o.modelId, `${id}: offerings[${j}].modelId`);
       const model = modelsById.get(modelId);
       if (!model) fail(`${id} is offered on unknown model ${modelId}`);
-      const offered = sizes(o.sizesOz, `${id}: offerings[${j}].sizesOz`);
+      // An empty list means the sizes are unconfirmed (see Offering).
+      const offered = Array.isArray(o.sizesOz) && o.sizesOz.length === 0 ? [] : sizes(o.sizesOz, `${id}: offerings[${j}].sizesOz`);
       for (const s of offered) if (!model.sizesOz.includes(s)) fail(`${id} is offered on ${modelId} in ${s} oz, which that model is not sold in`);
       return { modelId, sizesOz: offered };
     });
-    return { id, name: str(c.name, `${id}: name`), palette, offerings };
+    const colorway: Colorway = {
+      id,
+      name: str(c.name, `${id}: name`),
+      palette,
+      sampled: c.sampled === undefined ? true : bool(c.sampled, `${id}: sampled`),
+      sources: c.sources === undefined ? [] : webLinks(c.sources, `${id}: sources`),
+      offerings,
+    };
+    if (c.confidence !== undefined) colorway.confidence = confidence(c.confidence, `${id}: confidence`);
+    return colorway;
   });
   const seen = new Set<string>();
   for (const c of colorways) {
@@ -82,10 +110,15 @@ export function sizesFor(catalog: Catalog, modelId: string): number[] {
   return catalog.models.find((m) => m.id === modelId)?.sizesOz ?? [];
 }
 
-/** The Catalog colorways sold on this Model in this size, in Catalog order. */
+/**
+ * The Catalog colorways sold on this Model in this size, in Catalog order. A colorway whose sizes
+ * (or whose models) Owala's pages did not confirm is kept available rather than dropped: see Offering.
+ */
 export function colorwaysFor(catalog: Catalog, modelId: string, sizeOz: number): Colorway[] {
-  return catalog.colorways.filter((c) =>
-    c.offerings.some((o) => o.modelId === modelId && o.sizesOz.includes(sizeOz)),
+  return catalog.colorways.filter(
+    (c) =>
+      c.offerings.length === 0 ||
+      c.offerings.some((o) => o.modelId === modelId && (o.sizesOz.length === 0 || o.sizesOz.includes(sizeOz))),
   );
 }
 

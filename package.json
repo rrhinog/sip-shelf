@@ -6,6 +6,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite --port 4252 --strictPort",
+    "build:catalog": "node scripts/build-catalog.ts",
     "build": "tsc -b && vite build",
     "preview": "vite preview --port 4252 --strictPort",
     "lint": "eslint .",

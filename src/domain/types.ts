@@ -27,17 +27,32 @@ export interface Model {
   sizesOz: number[];
 }
 
-/** One Model (and the sizes of it) that a Colorway is sold on. */
+/**
+ * One Model (and the sizes of it) that a Colorway is sold on.
+ * An empty `sizesOz` means Owala's pages did not say which sizes: the colorway is then
+ * offered in every size of that Model.
+ */
 export interface Offering {
   modelId: string;
   sizesOz: number[];
 }
 
+/** How sure the sampling was about a colorway's colors. */
+export type Confidence = 'high' | 'medium' | 'low';
+
 /** Owala's named color design for a bottle, as listed in the Catalog. */
 export interface Colorway {
   id: string;
   name: string;
+  /** For an unsampled colorway this is a neutral placeholder, not Owala's colors. */
   palette: Palette;
+  /** False when no colors could be sampled; the app can then invite the person to set their own. */
+  sampled: boolean;
+  /** How sure the sampling was. Only present when `sampled` is true and the data says. */
+  confidence?: Confidence;
+  /** Owala (or retailer) web pages the colorway was read from. */
+  sources: string[];
+  /** Where it is sold. Empty means Owala's pages did not say: it is then offered on every Model and size. */
   offerings: Offering[];
 }
 

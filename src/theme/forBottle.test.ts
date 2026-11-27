@@ -4,7 +4,7 @@ import { parseCatalog } from '../catalog/catalog';
 import type { Bottle } from '../domain/types';
 import { applyTheme, DEFAULT_PALETTE, paletteForBottle, themeForBottle } from './forBottle';
 
-const catalog = parseCatalog(JSON.parse(readFileSync('public/catalog.fixture.json', 'utf8')));
+const catalog = parseCatalog(JSON.parse(readFileSync('src/catalog/catalog.fixture.json', 'utf8')));
 
 const bottle = (over: Partial<Bottle>): Bottle => ({
   id: 'b1',

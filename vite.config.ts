@@ -12,7 +12,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['catalog.fixture.json', 'icon.svg'],
+      includeAssets: ['catalog.json', 'icon.svg'],
       manifest: {
         name: 'Sip Shelf',
         short_name: 'Sip Shelf',
@@ -35,6 +35,6 @@ export default defineConfig({
   ],
   test: {
     environment: 'jsdom',
-    include: ['src/**/*.test.{ts,tsx}'],
+    include: ['src/**/*.test.{ts,tsx}', 'scripts/**/*.test.ts'],
   },
 });
