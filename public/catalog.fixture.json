@@ -1,0 +1,48 @@
+{
+  "source": "FIXTURE DATA: five made-up colorways with made-up hex values, for development and tests. Not Owala data.",
+  "models": [
+    { "id": "fixture-freesip", "name": "FreeSip (fixture)", "sizesOz": [24, 32, 40] },
+    { "id": "fixture-twist", "name": "Twist (fixture)", "sizesOz": [24, 32] }
+  ],
+  "colorways": [
+    {
+      "id": "fixture-lagoon",
+      "name": "Fixture Lagoon",
+      "palette": { "body": "#2f7fa8", "lid": "#f2d16b", "accent": "#e0645c" },
+      "offerings": [
+        { "modelId": "fixture-freesip", "sizesOz": [24, 32] },
+        { "modelId": "fixture-twist", "sizesOz": [24] }
+      ]
+    },
+    {
+      "id": "fixture-meadow",
+      "name": "Fixture Meadow",
+      "palette": { "body": "#4f9d69", "lid": "#f4f1de", "accent": "#d9822b" },
+      "offerings": [{ "modelId": "fixture-freesip", "sizesOz": [24, 32, 40] }]
+    },
+    {
+      "id": "fixture-dusk",
+      "name": "Fixture Dusk",
+      "palette": { "body": "#3a3a5c", "lid": "#b8a1e3", "accent": "#f28fad" },
+      "offerings": [
+        { "modelId": "fixture-freesip", "sizesOz": [32] },
+        { "modelId": "fixture-twist", "sizesOz": [24, 32] }
+      ]
+    },
+    {
+      "id": "fixture-sunbeam",
+      "name": "Fixture Sunbeam",
+      "palette": { "body": "#f2d16b", "lid": "#ffffff", "accent": "#fff3b0" },
+      "offerings": [
+        { "modelId": "fixture-freesip", "sizesOz": [24] },
+        { "modelId": "fixture-twist", "sizesOz": [32] }
+      ]
+    },
+    {
+      "id": "fixture-ember",
+      "name": "Fixture Ember",
+      "palette": { "body": "#c8452d", "lid": "#2b2b2b" },
+      "offerings": [{ "modelId": "fixture-freesip", "sizesOz": [24, 40] }]
+    }
+  ]
+}
