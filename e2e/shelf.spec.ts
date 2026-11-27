@@ -173,6 +173,8 @@ test('keeps the shelf and the Active bottle after a reload', async ({ page }) =>
   await registerBottle(page, { model: 'FreeSip', size: '32 oz', colorway: 'Burgundy Bay', nickname: 'Night' });
   await bottle(page, 'Night').click();
   await page.getByRole('button', { name: 'Make Active' }).click();
+  // Wait until the choice is saved and shown before reloading; reloading mid-save made this flaky in CI.
+  await expect(bottle(page, 'Night, Burgundy Bay, FreeSip 32 oz')).toContainText('Active');
   await page.reload();
   await expect(bottle(page, 'Read My Lips')).toBeVisible();
   await expect(bottle(page, 'Night, Burgundy Bay, FreeSip 32 oz')).toContainText('Active');
