@@ -1,0 +1,8 @@
+# Personal Claude Code settings (Ryan's advisor choice stays off GitHub)
+.claude/settings.local.json
+
+# Dependencies and builds
+node_modules/
+dist/
+.env
+.env.*
