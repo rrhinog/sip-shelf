@@ -6,3 +6,9 @@ node_modules/
 dist/
 .env
 .env.*
+
+# Test output
+playwright-report/
+test-results/
+dev-dist/
+*.tsbuildinfo
