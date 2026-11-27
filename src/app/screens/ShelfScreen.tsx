@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Bottle, Catalog } from '../../domain/types';
+import type { Bottle, Catalog, Overrides } from '../../domain/types';
 import { describeBottle } from '../describeBottle';
 import { BottleArt } from '../ui/BottleArt';
 import { PlusIcon } from '../ui/icons';
@@ -29,6 +29,7 @@ export function ShelfScreen({
   active,
   onAdd,
   onSetActive,
+  onSetOverrides,
   onRemove,
 }: {
   catalog: Catalog;
@@ -36,6 +37,7 @@ export function ShelfScreen({
   active: Bottle | null;
   onAdd(): void;
   onSetActive(id: string): Promise<void>;
+  onSetOverrides(id: string, overrides: Overrides): Promise<void>;
   onRemove(id: string): Promise<void>;
 }) {
   const [openId, setOpenId] = useState<string | null>(null);
@@ -115,10 +117,13 @@ export function ShelfScreen({
 
       {opened ? (
         <BottleSheet
+          key={opened.id}
           description={describeBottle(opened, catalog)}
+          overrides={opened.overrides}
           isActive={active?.id === opened.id}
           nextActiveTitle={nextActive ? describeBottle(nextActive, catalog).title : null}
           onMakeActive={() => void run(() => onSetActive(opened.id))}
+          onSetOverrides={(overrides) => onSetOverrides(opened.id, overrides)}
           onRemove={() => void run(() => onRemove(opened.id))}
           onClose={() => setOpenId(null)}
         />

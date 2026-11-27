@@ -53,6 +53,7 @@ export function App() {
             active={shelf.active}
             onAdd={() => setView('register')}
             onSetActive={shelf.setActive}
+            onSetOverrides={shelf.setOverrides}
             onRemove={shelf.remove}
           />
         )}
