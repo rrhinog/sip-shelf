@@ -12,4 +12,13 @@ export default tseslint.config(
     files: ['**/*.{ts,tsx}'],
     languageOptions: { globals: { ...globals.browser, ...globals.node } },
   },
+  {
+    // ADR 0002: only the storage module touches the database.
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: ['src/storage/**'],
+    rules: {
+      'no-restricted-imports': ['error', { paths: [{ name: 'dexie', message: 'Use the Shelf from src/storage/shelf.ts (ADR 0002).' }] }],
+      'no-restricted-globals': ['error', { name: 'indexedDB', message: 'Use the Shelf from src/storage/shelf.ts (ADR 0002).' }],
+    },
+  },
 );
