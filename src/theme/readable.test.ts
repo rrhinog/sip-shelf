@@ -45,3 +45,11 @@ describe('ensureContrast', () => {
     }
   });
 });
+
+describe('ensureContrast against several backgrounds at once', () => {
+  it('reaches 4.5:1 on every one of them', () => {
+    const bgs = ['#ffffff', '#e8e8e8', '#d0d0d0'];
+    const nudged = ensureContrast('#f6e05e', bgs);
+    for (const bg of bgs) expect(contrastRatio(nudged, bg)).toBeGreaterThanOrEqual(MIN_TEXT_CONTRAST);
+  });
+});
