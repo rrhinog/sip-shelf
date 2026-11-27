@@ -2,7 +2,7 @@
   Sip Shelf, "Collector's Case" look: bottles standing on shelf planks, sticker-style labels, chunky outlines.
   Every color comes from the theme variables (src/theme/theme.ts), which the app sets from the Active bottle:
   --color-bg, --color-surface, --color-text, --color-primary / -on-primary, --color-secondary / -on-secondary,
-  --color-accent / -on-accent, --color-link. The values below are only what shows before the theme is set.
+  --color-accent / -on-accent, --color-paper, --color-link. The values below are only what shows before the theme is set.
 */
 :root {
   --color-bg: #f1f4f5;
@@ -16,16 +16,10 @@
   --color-on-accent: #ffffff;
   --color-link: #2f4651;
 
-  /* Cards and chips: white in light mode, the theme's surface in dark mode. Their text is --color-text. */
-  --paper: #ffffff;
+  /* Cards, chips and sheets (--color-paper): white in light mode, the surface in dark mode; their text is --color-text. */
+  --color-paper: #ffffff;
   --tab-space: calc(86px + env(safe-area-inset-bottom));
   --font: ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: var(--color-surface);
-  }
 }
 
 * {
@@ -151,7 +145,7 @@ button {
   height: 44px;
   border-radius: 50%;
   border: none;
-  background: var(--paper);
+  background: var(--color-paper);
   color: var(--color-text);
   display: inline-flex;
   align-items: center;
@@ -227,7 +221,7 @@ button {
   max-width: 100%;
   padding: 4px 10px;
   border-radius: 12px;
-  background: var(--paper);
+  background: var(--color-paper);
   color: var(--color-text);
   border: 2px solid var(--color-text);
   font-size: 13px;
@@ -294,7 +288,7 @@ button {
   border: 2px solid var(--color-text);
   border-bottom: none;
   border-radius: 28px 28px 0 0;
-  background: var(--paper);
+  background: var(--color-paper);
   color: var(--color-text);
   padding: 14px 22px calc(24px + env(safe-area-inset-bottom));
   animation: rise 0.25s ease-out;
@@ -359,7 +353,7 @@ button {
   min-height: 56px;
   border-radius: 28px;
   border: 2px solid var(--color-text);
-  background: var(--paper);
+  background: var(--color-paper);
   color: var(--color-text);
   font-size: 18px;
   font-weight: 800;
@@ -490,7 +484,7 @@ button {
   padding: 0 14px;
   border-radius: 18px;
   border: 2px solid var(--color-text);
-  background: var(--paper);
+  background: var(--color-paper);
   color: var(--color-text);
   font-size: 14px;
   font-weight: 800;
@@ -520,7 +514,7 @@ button {
   padding: 12px 14px 14px;
   border-radius: 22px;
   border: 2px solid var(--color-text);
-  background: var(--paper);
+  background: var(--color-paper);
   color: var(--color-text);
   text-align: left;
   box-shadow: 0 4px 0 var(--color-text);
@@ -565,7 +559,7 @@ button {
   padding: 12px 8px;
   border-radius: 22px;
   border: 2px solid var(--color-text);
-  background: var(--paper);
+  background: var(--color-paper);
   color: var(--color-text);
   font-size: 18px;
   font-weight: 800;
@@ -579,7 +573,7 @@ button {
   padding: 0 20px;
   border-radius: 25px;
   border: 2px solid var(--color-text);
-  background: var(--paper);
+  background: var(--color-paper);
   color: var(--color-text);
   font-size: 16px;
   font-weight: 600;
@@ -648,7 +642,7 @@ button {
   padding: 10px 14px;
   border-radius: 16px;
   border: 2px solid var(--color-text);
-  background: var(--paper);
+  background: var(--color-paper);
   font-size: 14px;
   line-height: 1.35;
   font-weight: 700;
@@ -674,7 +668,7 @@ button {
   padding: 0 18px;
   border-radius: 25px;
   border: 2px solid var(--color-text);
-  background: var(--paper);
+  background: var(--color-paper);
   color: var(--color-text);
   font-size: 16px;
   font-weight: 600;
