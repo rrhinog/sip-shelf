@@ -47,7 +47,7 @@ function mount(bottle: Bottle = lagoon) {
 
 const row = (slot: 'body' | 'lid' | 'accent') => host.querySelector<HTMLElement>(`[data-slot="${slot}"]`)!;
 const input = (slot: 'body' | 'lid' | 'accent') => row(slot).querySelector<HTMLInputElement>('input[type="color"]')!;
-const reset = (slot: 'body' | 'lid' | 'accent') => host.querySelector<HTMLButtonElement>(`button[aria-label="Reset ${slot} color"]`);
+const reset = (slot: 'body' | 'lid' | 'accent') => host.querySelector<HTMLButtonElement>(`button[aria-label="Reset ${slot}"]`);
 const previewColors = () =>
   [...host.querySelectorAll('.sheet-art svg *')].map((el) => el.getAttribute('fill')).filter((f) => f && f !== 'none');
 
@@ -115,6 +115,28 @@ describe('the bottle sheet’s colors', () => {
     expect(onSetOverrides).toHaveBeenLastCalledWith({ accent: '#00aa00' });
     pick(input('body'), '#123456');
     expect(onSetOverrides).toHaveBeenLastCalledWith({ accent: '#00aa00', body: '#123456' });
+  });
+
+  it('also saves a moment after the last step if the phone sends no closing event', () => {
+    vi.useFakeTimers();
+    try {
+      mount();
+      pick(input('lid'), '#112233', { commit: false });
+      pick(input('lid'), '#112244', { commit: false });
+      expect(onSetOverrides).not.toHaveBeenCalled();
+      act(() => vi.advanceTimersByTime(1000));
+      expect(onSetOverrides).toHaveBeenCalledTimes(1);
+      expect(onSetOverrides).toHaveBeenLastCalledWith({ lid: '#112244' });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('saves a color still being picked when the sheet closes', () => {
+    mount();
+    pick(input('lid'), '#112233', { commit: false });
+    act(() => root.render(<span />));
+    expect(onSetOverrides).toHaveBeenLastCalledWith({ lid: '#112233' });
   });
 
   it('resets one color to the Catalog’s and saves, leaving the other Overrides', () => {

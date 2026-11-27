@@ -88,7 +88,7 @@ export function ColorOverrides({
               </span>
             </span>
             {overridden ? (
-              <button type="button" className="dashed-button" aria-label={`Reset ${slot} color`} onClick={() => onReset(slot)}>
+              <button type="button" className="dashed-button" aria-label={`Reset ${slot}`} onClick={() => onReset(slot)}>
                 Reset
               </button>
             ) : null}

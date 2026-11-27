@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Overrides, PaletteSlot } from '../../domain/types';
 import { resetOverride, setOverride } from '../../theme/overrides';
 import { resolvePalette } from '../../theme/theme';
@@ -6,6 +6,9 @@ import type { BottleDescription } from '../describeBottle';
 import { BottleArt } from '../ui/BottleArt';
 import { CloseIcon } from '../ui/icons';
 import { ColorOverrides } from './ColorOverrides';
+
+/** How long after the last step of a color being picked it is saved, if the picker sent no closing event. */
+const SAVE_AFTER_MS = 600;
 
 /**
  * A pull-up sheet for one Bottle on the Shelf: set or reset its colors (Overrides) with a live preview,
@@ -38,12 +41,30 @@ export function BottleSheet({
   // The sheet's own copy of the Overrides: it drives the preview while a color is being picked, then is saved.
   const [overrides, setOverrides] = useState(savedOverrides);
   const latest = useRef(overrides);
+  // A color being dragged is saved when the picker closes (a change event), or soon after the last step
+  // when a phone sends none, or when the sheet closes: whichever comes first.
+  const unsaved = useRef(false);
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const save = useRef(onSetOverrides);
+  useEffect(() => {
+    save.current = onSetOverrides;
+  });
+  const flush = useCallback(() => {
+    clearTimeout(timer.current);
+    if (!unsaved.current) return;
+    unsaved.current = false;
+    void save.current(latest.current);
+  }, []);
+  useEffect(() => flush, [flush]);
   const palette = resolvePalette(description.basePalette, overrides);
 
   function change(next: Overrides, save: boolean) {
     latest.current = next;
     setOverrides(next);
-    if (save) void onSetOverrides(next);
+    unsaved.current = true;
+    clearTimeout(timer.current);
+    if (save) flush();
+    else timer.current = setTimeout(flush, SAVE_AFTER_MS);
   }
   const pick = (slot: PaletteSlot, color: string, save: boolean) =>
     change(setOverride(latest.current, slot, color, description.basePalette), save);

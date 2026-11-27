@@ -6,7 +6,7 @@
 }
 
 .about {
-  padding: 0 0 calc(7rem + env(safe-area-inset-bottom));
+  padding: 0 0 var(--tab-space);
   color: var(--color-text);
 }
 
@@ -189,5 +189,12 @@
 @media (prefers-reduced-motion: reduce) {
   .notice-card {
     animation: none;
+  }
+}
+
+/* Wide screens: the tabs are a side menu, so there is nothing under the content. */
+@media (min-width: 1024px) {
+  .about {
+    padding-bottom: 24px;
   }
 }
