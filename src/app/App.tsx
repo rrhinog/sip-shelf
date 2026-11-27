@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { CATALOG_URL, loadCatalog } from '../catalog/catalog';
 import type { Catalog, NewBottle } from '../domain/types';
-import { applyTheme, themeForBottle } from '../theme/forBottle';
+import { applyTheme, applyThemeColor, themeForBottle } from '../theme/forBottle';
 import { About, DeviceOnlyNotice } from './about';
 import { RegisterScreen } from './screens/RegisterScreen';
 import { ShelfScreen } from './screens/ShelfScreen';
@@ -28,7 +28,9 @@ export function App() {
   // Theme the whole app from the Active bottle, re-applied when it or the phone's light/dark setting changes.
   useEffect(() => {
     if (!catalog || !shelf.loaded) return;
-    applyTheme(document.documentElement, themeForBottle(shelf.active, catalog, scheme));
+    const vars = themeForBottle(shelf.active, catalog, scheme);
+    applyTheme(document.documentElement, vars);
+    applyThemeColor(document, vars);
   }, [catalog, shelf.loaded, shelf.active, scheme]);
 
   if (error) return <main role="alert" className="plain-text">{error}</main>;

@@ -29,3 +29,17 @@ export function themeForBottle(active: Bottle | null, catalog: Catalog, scheme: 
 export function applyTheme(element: HTMLElement, vars: ThemeVars): void {
   for (const [name, value] of Object.entries(vars)) element.style.setProperty(name, value);
 }
+
+/** Point every theme-color tag (the phone's status and browser bar) at the app's primary color. */
+export function applyThemeColor(doc: Document, vars: ThemeVars): void {
+  const color = vars['--color-primary'];
+  if (!color) return;
+  let tags = [...doc.querySelectorAll('meta[name="theme-color"]')];
+  if (tags.length === 0) {
+    const tag = doc.createElement('meta');
+    tag.name = 'theme-color';
+    doc.head.appendChild(tag);
+    tags = [tag];
+  }
+  for (const tag of tags) tag.setAttribute('content', color);
+}
