@@ -40,6 +40,8 @@ const cssVar = (page: Page, name: string) =>
 const bottle = (page: Page, label: string) => page.getByRole('button', { name: new RegExp(`^${label}`) });
 
 test.beforeEach(async ({ page }) => {
+  // The one-time device notice is tested in notice.spec.ts; here it is already dismissed so it covers nothing.
+  await page.addInitScript(() => localStorage.setItem('sip-shelf:device-notice-seen', '1'));
   await page.goto('./');
   await expect(page.getByRole('heading', { name: 'My Shelf' })).toBeVisible();
 });
@@ -218,6 +220,8 @@ test('the tab bar switches between Shelf and About', async ({ page }) => {
   await expect(tabs.getByRole('button', { name: 'Shelf' })).toHaveAttribute('aria-current', 'page');
   await tabs.getByRole('button', { name: 'About' }).click();
   await expect(page.getByRole('heading', { name: 'About' })).toBeVisible();
+  await expect(page.getByText('not affiliated with, endorsed by or sponsored by Owala')).toBeVisible();
+  await expect(page.getByRole('link', { name: /MIT License/i })).toHaveAttribute('href', /github\.com\/rrhinog\/sip-shelf/);
   await expect(tabs.getByRole('button', { name: 'About' })).toHaveAttribute('aria-current', 'page');
   await tabs.getByRole('button', { name: 'Shelf' }).click();
   await expect(page.getByRole('heading', { name: 'My Shelf' })).toBeVisible();

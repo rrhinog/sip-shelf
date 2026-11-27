@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { CATALOG_URL, loadCatalog } from '../catalog/catalog';
 import type { Catalog, NewBottle } from '../domain/types';
 import { applyTheme, themeForBottle } from '../theme/forBottle';
-import { AboutPlaceholder } from './AboutPlaceholder';
+import { About, DeviceOnlyNotice } from './about';
 import { RegisterScreen } from './screens/RegisterScreen';
 import { ShelfScreen } from './screens/ShelfScreen';
 import { TabBar, type Tab } from './ui/TabBar';
@@ -45,7 +45,7 @@ export function App() {
         {view === 'register' ? (
           <RegisterScreen catalog={catalog} onSave={register} onLeave={() => setView('shelf')} />
         ) : view === 'about' ? (
-          <AboutPlaceholder />
+          <About />
         ) : (
           <ShelfScreen
             catalog={catalog}
@@ -58,6 +58,7 @@ export function App() {
         )}
       </main>
       {view === 'register' ? null : <TabBar current={view} onSelect={setView} />}
+      <DeviceOnlyNotice />
     </div>
   );
 }
