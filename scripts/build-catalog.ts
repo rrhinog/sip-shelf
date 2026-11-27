@@ -8,6 +8,15 @@ import type { Catalog, Colorway, Confidence, Model, Offering, Palette } from '..
 /** The placeholder palette for a colorway with no sampled colors (the same neutral blue-grey the app defaults to). */
 export const NEUTRAL_PALETTE: Palette = { body: '#4a6572' };
 
+/**
+ * Researched colorways the Catalog leaves out on purpose. The research files keep them; the
+ * shipped Catalog does not. Each one says why.
+ */
+export const EXCLUDED_COLORWAYS: ReadonlyArray<{ name: string; reason: string }> = [
+  { name: 'Salt Spray', reason: 'a bag (the Sun-Day Collapsible Tote), not a bottle; bags are out of v1 (ADR 0004)' },
+];
+const EXCLUDED_NAMES = new Set(EXCLUDED_COLORWAYS.map((e) => e.name));
+
 /** Something in colorways.csv this script could not map onto a Model or size. */
 export interface Unmapped {
   colorway: string;
@@ -266,7 +275,7 @@ export function buildCatalog(colorwaysCsv: string, palettesCsv: string): BuildRe
   const unmapped: Unmapped[] = [];
   const modelSizes = new Map<string, Set<number>>();
   const usedIds = new Set<string>();
-  const colorways: Colorway[] = colorwayRows.map((row) => {
+  const colorways: Colorway[] = colorwayRows.filter((row) => !EXCLUDED_NAMES.has(row.name ?? '')).map((row) => {
     const name = row.name!;
     const palette = palettesByName.get(name)!;
 
@@ -347,6 +356,7 @@ function main() {
   console.log(
     `public/catalog.json: ${catalog.colorways.length} colorways (${sampled} sampled, ${catalog.colorways.length - sampled} unsampled), ${catalog.models.length} models`,
   );
+  console.log(`Left out on purpose (${EXCLUDED_COLORWAYS.length}): ${EXCLUDED_COLORWAYS.map((e) => `${e.name} (${e.reason})`).join('; ')}`);
   const noModels = catalog.colorways.filter((c) => c.offerings.length === 0).length;
   const noSizes = catalog.colorways.filter((c) => c.offerings.some((o) => o.sizesOz.length === 0)).length;
   console.log(`${noModels} colorways with no confirmed model, ${noSizes} with a model whose sizes are unconfirmed`);

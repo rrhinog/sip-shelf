@@ -36,6 +36,10 @@ For each colorway one or two front-on product photos were used. The background w
 
 Some colorways have no sampled colors, because they were only found on retailer or news pages (no Owala photo was in scope), or no photo could be tied to the name. They still ship: `"sampled": false`, a neutral palette (`#4a6572`) in place of real colors, and no `confidence`. The app can use that flag to invite the person to set their own colors.
 
+## Left out on purpose
+
+A few researched colorways stay in the CSVs but not in the shipped Catalog. They are listed, each with its reason, in `EXCLUDED_COLORWAYS` in `scripts/build-catalog.ts`. Today that is Salt Spray, a tote bag rather than a bottle (bags are out of v1, ADR 0004).
+
 ## Models and sizes
 
 The models and sizes in `colorways.csv` are free text, and the build maps them onto the app's Models and sizes (`scripts/build-catalog.ts`). Where the text does not say, a colorway is kept rather than dropped:

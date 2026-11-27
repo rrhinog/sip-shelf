@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildCatalog, NEUTRAL_PALETTE, parseCsv, serializeCatalog } from './build-catalog';
+import { buildCatalog, EXCLUDED_COLORWAYS, NEUTRAL_PALETTE, parseCsv, serializeCatalog } from './build-catalog';
 
 const COLORWAY_HEADER = 'name,models,sizes,status,body,lid,accent,straw_or_spout,released,source_urls,read_on,notes';
 const PALETTE_HEADER = 'name,body_hex,lid_hex,accent_hex,method,source_image_urls,confidence,notes';
@@ -25,6 +25,21 @@ const only = (colorwayRow: string, paletteRow: string) => {
   const { catalog, unmapped } = build([colorwayRow], [paletteRow]);
   return { colorway: catalog.colorways[0]!, catalog, unmapped };
 };
+
+describe('excluded colorways', () => {
+  it('leaves the tote bag out of the Catalog, because bags are not bottles (ADR 0004)', () => {
+    expect(EXCLUDED_COLORWAYS.map((e) => e.name)).toContain('Salt Spray');
+    const { catalog } = build(
+      [cw('Salt Spray', 'Sun-Day Collapsible Tote (bag, not a bottle)', ''), cw('Kept', 'FreeSip', '24oz')],
+      [pal('Salt Spray', '#aabbcc', '', '', 'high'), pal('Kept', '#112233', '', '', 'high')],
+    );
+    expect(catalog.colorways.map((c) => c.name)).toEqual(['Kept']);
+  });
+
+  it('gives every exclusion a reason', () => {
+    for (const e of EXCLUDED_COLORWAYS) expect(e.reason.trim(), e.name).not.toBe('');
+  });
+});
 
 describe('parseCsv', () => {
   it('reads quoted cells with commas, quotes and line breaks, and either kind of line ending', () => {

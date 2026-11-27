@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { buildCatalog, NEUTRAL_PALETTE, parseCsv, serializeCatalog } from '../../scripts/build-catalog';
+import { buildCatalog, EXCLUDED_COLORWAYS, NEUTRAL_PALETTE, parseCsv, serializeCatalog } from '../../scripts/build-catalog';
 import type { Bottle } from '../domain/types';
 import { paletteForBottle } from '../theme/forBottle';
 import { colorwaysFor, loadCatalog } from './catalog';
@@ -9,6 +9,7 @@ import { colorwaysFor, loadCatalog } from './catalog';
 const catalogText = readFileSync('public/catalog.json', 'utf8');
 const colorwaysCsv = readFileSync('data/colorways.csv', 'utf8');
 const palettesCsv = readFileSync('data/palettes.csv', 'utf8');
+const excluded = new Set(EXCLUDED_COLORWAYS.map((e) => e.name));
 
 const catalog = await loadCatalog('/sip-shelf/catalog.json', async () => new Response(catalogText));
 
@@ -22,14 +23,20 @@ describe('the real catalog file', () => {
     expect(catalogText).toBe(serializeCatalog(buildCatalog(colorwaysCsv, palettesCsv).catalog));
   });
 
-  it('ships every researched colorway, sampled or not', () => {
-    const researched = parseCsv(colorwaysCsv).map((r) => r.name);
+  it('ships every researched colorway, sampled or not, except the excluded ones', () => {
+    const researched = parseCsv(colorwaysCsv).map((r) => r.name).filter((n) => !excluded.has(n!));
     expect(catalog.colorways.map((c) => c.name)).toEqual(researched);
   });
 
+  it('only excludes colorways that are really in the research (no stale exclusions)', () => {
+    const researched = new Set(parseCsv(colorwaysCsv).map((r) => r.name));
+    for (const name of excluded) expect(researched.has(name), name).toBe(true);
+    for (const name of excluded) expect(catalog.colorways.some((c) => c.name === name), name).toBe(false);
+  });
+
   it('counts as many sampled colorways as the palettes file has hex values for, and the rest as unsampled', () => {
-    const withHex = parseCsv(palettesCsv).filter((r) => (r.body_hex ?? '').trim() !== '').length;
-    const total = parseCsv(colorwaysCsv).length;
+    const withHex = parseCsv(palettesCsv).filter((r) => !excluded.has(r.name!) && (r.body_hex ?? '').trim() !== '').length;
+    const total = parseCsv(colorwaysCsv).filter((r) => !excluded.has(r.name!)).length;
     const sampled = catalog.colorways.filter((c) => c.sampled);
     const unsampled = catalog.colorways.filter((c) => !c.sampled);
     expect(catalog.colorways).toHaveLength(total);
