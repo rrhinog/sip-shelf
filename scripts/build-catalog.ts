@@ -15,7 +15,20 @@ export const NEUTRAL_PALETTE: Palette = { body: '#4a6572' };
 export const EXCLUDED_COLORWAYS: ReadonlyArray<{ name: string; reason: string }> = [
   { name: 'Salt Spray', reason: 'a bag (the Sun-Day Collapsible Tote), not a bottle; bags are out of v1 (ADR 0004)' },
 ];
-const EXCLUDED_NAMES = new Set(EXCLUDED_COLORWAYS.map((e) => e.name));
+
+/**
+ * Kids bottles are out of v1 (maintainer, 2026-11-27). These model lines are still recognised, so their
+ * sizes are read correctly, then dropped: a colorway sold only as a kids bottle is left out, and one
+ * also sold as an adult bottle keeps only its adult offerings. "kids" is the bare "Kids" some rows give.
+ */
+export const KIDS_MODEL_IDS: ReadonlySet<string> = new Set(['kids-freesip', 'kids-tumbler', 'kids']);
+const KIDS_REASON = 'sold only as a kids bottle; kids bottles are out of v1';
+
+/** A researched colorway the shipped Catalog leaves out, and why. */
+export interface LeftOut {
+  colorway: string;
+  reason: string;
+}
 
 /** Something in colorways.csv this script could not map onto a Model or size. */
 export interface Unmapped {
@@ -28,6 +41,7 @@ export interface Unmapped {
 export interface BuildResult {
   catalog: Catalog;
   unmapped: Unmapped[];
+  leftOut: LeftOut[];
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -82,6 +96,7 @@ const MODEL_LINES: { id: string; name: string }[] = [
   { id: 'smoothsip', name: 'SmoothSip' },
   { id: 'kids-freesip', name: "Kids' FreeSip" },
   { id: 'kids-tumbler', name: "Kids' Tumbler" },
+  { id: 'kids', name: 'Kids' },
   { id: 'straw-tumbler', name: 'Straw Tumbler' },
   { id: 'bucket-handle-tumbler', name: 'Bucket Handle Tumbler' },
 ];
@@ -273,9 +288,24 @@ export function buildCatalog(colorwaysCsv: string, palettesCsv: string): BuildRe
   }
 
   const unmapped: Unmapped[] = [];
+  const leftOut: LeftOut[] = [];
   const modelSizes = new Map<string, Set<number>>();
   const usedIds = new Set<string>();
-  const colorways: Colorway[] = colorwayRows.filter((row) => !EXCLUDED_NAMES.has(row.name ?? '')).map((row) => {
+  const kept = colorwayRows.filter((row) => {
+    const name = row.name ?? '';
+    const excluded = EXCLUDED_COLORWAYS.find((e) => e.name === name);
+    if (excluded) {
+      leftOut.push({ colorway: name, reason: excluded.reason });
+      return false;
+    }
+    const tokens = modelTokens(row.models ?? '');
+    if (tokens.length > 0 && tokens.every((t) => t.line && KIDS_MODEL_IDS.has(t.line.id))) {
+      leftOut.push({ colorway: name, reason: KIDS_REASON });
+      return false;
+    }
+    return true;
+  });
+  const colorways: Colorway[] = kept.map((row) => {
     const name = row.name!;
     const palette = palettesByName.get(name)!;
 
@@ -290,7 +320,7 @@ export function buildCatalog(colorwaysCsv: string, palettesCsv: string): BuildRe
 
     const mapped = mapModelsAndSizes(row.models ?? '', row.sizes ?? '');
     for (const u of mapped.unmapped) unmapped.push({ colorway: name, ...u });
-    const offerings: Offering[] = [...mapped.sizes].map(([modelId, sizesOz]) => {
+    const offerings: Offering[] = [...mapped.sizes].filter(([modelId]) => !KIDS_MODEL_IDS.has(modelId)).map(([modelId, sizesOz]) => {
       const seen = modelSizes.get(modelId) ?? new Set<number>();
       for (const s of sizesOz) seen.add(s);
       modelSizes.set(modelId, seen);
@@ -322,7 +352,7 @@ export function buildCatalog(colorwaysCsv: string, palettesCsv: string): BuildRe
     `Colorway names, models, sizes and source pages from Owala's public pages${readOn ? `, read ${readOn}` : ''}. ` +
     'Colors were sampled from Owala product photos; each colorway says how sure the sampling was, and colorways with no sampled colors are marked and shown in a neutral color.';
 
-  return { catalog: { source, models, colorways }, unmapped };
+  return { catalog: { source, models, colorways }, unmapped, leftOut };
 }
 
 /** The Catalog as JSON text: one model or colorway per line, so a data change is a small diff. Ends with a newline. */
@@ -347,7 +377,7 @@ export function serializeCatalog(catalog: Catalog): string {
 
 function main() {
   const root = fileURLToPath(new URL('..', import.meta.url));
-  const { catalog, unmapped } = buildCatalog(
+  const { catalog, unmapped, leftOut } = buildCatalog(
     readFileSync(`${root}data/colorways.csv`, 'utf8'),
     readFileSync(`${root}data/palettes.csv`, 'utf8'),
   );
@@ -356,7 +386,8 @@ function main() {
   console.log(
     `public/catalog.json: ${catalog.colorways.length} colorways (${sampled} sampled, ${catalog.colorways.length - sampled} unsampled), ${catalog.models.length} models`,
   );
-  console.log(`Left out on purpose (${EXCLUDED_COLORWAYS.length}): ${EXCLUDED_COLORWAYS.map((e) => `${e.name} (${e.reason})`).join('; ')}`);
+  console.log(`Left out on purpose (${leftOut.length}):`);
+  for (const l of leftOut) console.log(`  ${l.colorway} | ${l.reason}`);
   const noModels = catalog.colorways.filter((c) => c.offerings.length === 0).length;
   const noSizes = catalog.colorways.filter((c) => c.offerings.some((o) => o.sizesOz.length === 0)).length;
   console.log(`${noModels} colorways with no confirmed model, ${noSizes} with a model whose sizes are unconfirmed`);

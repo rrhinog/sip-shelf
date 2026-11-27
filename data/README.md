@@ -38,7 +38,10 @@ Some colorways have no sampled colors, because they were only found on retailer 
 
 ## Left out on purpose
 
-A few researched colorways stay in the CSVs but not in the shipped Catalog. They are listed, each with its reason, in `EXCLUDED_COLORWAYS` in `scripts/build-catalog.ts`. Today that is Salt Spray, a tote bag rather than a bottle (bags are out of v1, ADR 0004).
+Some researched colorways stay in the CSVs but not in the shipped Catalog. `npm run build:catalog` prints each one with its reason.
+
+- **Bags:** `EXCLUDED_COLORWAYS` in `scripts/build-catalog.ts` names them. Today that is Salt Spray, a tote bag rather than a bottle (bags are out of v1, ADR 0004).
+- **Kids bottles** are out of v1 (maintainer's decision, 2026-11-27). The Kids' FreeSip and Kids' Tumbler lines, and a bare "Kids", are read and then dropped (`KIDS_MODEL_IDS`). A colorway sold only as a kids bottle is left out. One also sold as an adult bottle keeps only its adult models and sizes.
 
 ## Models and sizes
 

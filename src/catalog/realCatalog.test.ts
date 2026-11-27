@@ -9,7 +9,8 @@ import { colorwaysFor, loadCatalog } from './catalog';
 const catalogText = readFileSync('public/catalog.json', 'utf8');
 const colorwaysCsv = readFileSync('data/colorways.csv', 'utf8');
 const palettesCsv = readFileSync('data/palettes.csv', 'utf8');
-const excluded = new Set(EXCLUDED_COLORWAYS.map((e) => e.name));
+const built = buildCatalog(colorwaysCsv, palettesCsv);
+const excluded = new Set(built.leftOut.map((l) => l.colorway));
 
 const catalog = await loadCatalog('/sip-shelf/catalog.json', async () => new Response(catalogText));
 
@@ -30,8 +31,20 @@ describe('the real catalog file', () => {
 
   it('only excludes colorways that are really in the research (no stale exclusions)', () => {
     const researched = new Set(parseCsv(colorwaysCsv).map((r) => r.name));
-    for (const name of excluded) expect(researched.has(name), name).toBe(true);
+    for (const { name } of EXCLUDED_COLORWAYS) expect(researched.has(name), name).toBe(true);
     for (const name of excluded) expect(catalog.colorways.some((c) => c.name === name), name).toBe(false);
+  });
+
+  it('has no kids bottles: no Kids model, and every colorway sold only as a kids bottle is left out', () => {
+    expect(catalog.models.filter((m) => /kid/i.test(m.id + m.name))).toEqual([]);
+    const kidsOnly = parseCsv(colorwaysCsv)
+      .filter((r) => {
+        const models = (r.models ?? '').replace(/\([^)]*\)/g, ' ').split(/[;,]/).map((t) => t.trim()).filter((t) => t !== '');
+        return models.length > 0 && models.every((t) => /^kids/i.test(t));
+      })
+      .map((r) => r.name);
+    expect(kidsOnly.length).toBeGreaterThan(0);
+    for (const name of kidsOnly) expect(excluded.has(name!), name).toBe(true);
   });
 
   it('counts as many sampled colorways as the palettes file has hex values for, and the rest as unsampled', () => {

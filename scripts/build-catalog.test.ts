@@ -36,6 +36,32 @@ describe('excluded colorways', () => {
     expect(catalog.colorways.map((c) => c.name)).toEqual(['Kept']);
   });
 
+  it('leaves out a colorway sold only as a kids bottle, and says so', () => {
+    const { catalog, leftOut } = build(
+      [cw('Little One', "Kids' FreeSip; Kids' Tumbler", '14oz'), cw('Kept', 'FreeSip', '24oz')],
+      [pal('Little One', '#aabbcc', '', '', 'high'), pal('Kept', '#112233', '', '', 'high')],
+    );
+    expect(catalog.colorways.map((c) => c.name)).toEqual(['Kept']);
+    expect(leftOut.map((l) => l.colorway)).toEqual(['Little One']);
+    expect(catalog.models.map((m) => m.id)).toEqual(['freesip']);
+  });
+
+  it('keeps a colorway sold as kids and adult bottles, with only its adult offerings', () => {
+    const { colorway, catalog, unmapped } = only(
+      cw('Both', "FreeSip; Kids' FreeSip", "FreeSip: 24oz | Kids' FreeSip: 14oz"),
+      pal('Both', '#112233', '', '', 'high'),
+    );
+    expect(colorway.offerings).toEqual([{ modelId: 'freesip', sizesOz: [24] }]);
+    expect(catalog.models.map((m) => m.id)).toEqual(['freesip']);
+    expect(unmapped).toEqual([]);
+  });
+
+  it('drops a bare "Kids" model and its sizes without counting them as unmapped', () => {
+    const { colorway, unmapped } = only(cw('Vague', 'FreeSip, Kids', '24oz; 16oz'), pal('Vague', '#112233', '', '', 'high'));
+    expect(colorway.offerings).toEqual([{ modelId: 'freesip', sizesOz: [24] }]);
+    expect(unmapped).toEqual([]);
+  });
+
   it('gives every exclusion a reason', () => {
     for (const e of EXCLUDED_COLORWAYS) expect(e.reason.trim(), e.name).not.toBe('');
   });
@@ -126,8 +152,8 @@ describe('mapping models and sizes', () => {
   });
 
   it('reads sizes with a material word after them, such as "12oz steel"', () => {
-    const { colorway } = only(cw('Kid', "Kids' Tumbler", '12oz steel, 15oz plastic'), pal('Kid'));
-    expect(colorway.offerings).toEqual([{ modelId: 'kids-tumbler', sizesOz: [12, 15] }]);
+    const { colorway } = only(cw('Straw', 'Straw Tumbler', '12oz steel, 15oz plastic'), pal('Straw'));
+    expect(colorway.offerings).toEqual([{ modelId: 'straw-tumbler', sizesOz: [12, 15] }]);
   });
 
   it('reads models separated by commas, and ignores a collection name in brackets', () => {
@@ -179,17 +205,17 @@ describe('mapping models and sizes', () => {
     expect(unmapped).toEqual([{ colorway: 'Vague', field: 'sizes', value: '24oz', reason: expect.any(String) }]);
   });
 
-  it('keeps a colorway with no models, and one whose model is not a bottle or is ambiguous, as unconfirmed, and says so', () => {
-    const { catalog, unmapped } = build(
+  it('keeps a colorway with no models, and one whose model is not a bottle we know, as unconfirmed, and says so', () => {
+    const { catalog, unmapped, leftOut } = build(
       [cw('Nowhere', '', ''), cw('Tote', 'Sun-Day Collapsible Tote (bag, not a bottle)', ''), cw('Kidsy', 'Kids', '16oz')],
       [pal('Nowhere'), pal('Tote'), pal('Kidsy')],
     );
-    expect(catalog.colorways.map((c) => c.offerings)).toEqual([[], [], []]);
-    expect(unmapped.map((u) => [u.colorway, u.field, u.value])).toEqual([
-      ['Tote', 'models', 'Sun-Day Collapsible Tote'],
-      ['Kidsy', 'models', 'Kids'],
-      ['Kidsy', 'sizes', '16oz'],
+    expect(catalog.colorways.map((c) => [c.name, c.offerings])).toEqual([
+      ['Nowhere', []],
+      ['Tote', []],
     ]);
+    expect(unmapped.map((u) => [u.colorway, u.field, u.value])).toEqual([['Tote', 'models', 'Sun-Day Collapsible Tote']]);
+    expect(leftOut.map((l) => l.colorway)).toEqual(['Kidsy']);
   });
 
   it('lists only models that some colorway is sold on, in a fixed order, with the sizes seen for each', () => {
