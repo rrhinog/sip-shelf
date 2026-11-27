@@ -1,5 +1,5 @@
 /* About screen and device notice. Collector's Case: playful, sticker-like cards with a dark outline.
-   Colors come from the theme custom properties set from the Active bottle (defaults in app.css apply before it is set).
+   Colors come from the theme custom properties set from the Active bottle (defaults in app.css apply before it is set). */
 .about,
 .notice-card {
   font-family: Nunito, 'Avenir Next', system-ui, sans-serif;
