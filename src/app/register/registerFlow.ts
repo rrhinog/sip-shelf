@@ -32,8 +32,11 @@ export type RegisterAction =
   | { type: 'editCustom'; patch: Partial<CustomDraft> }
   | { type: 'setColor'; slot: PaletteSlot; hex: HexColor }
   | { type: 'setNickname'; nickname: string }
+  | { type: 'goTo'; step: Step }
   | { type: 'next' }
   | { type: 'back' };
+
+const STEP_ORDER: Step[] = ['model', 'size', 'colorway', 'custom', 'nickname'];
 
 /** Starting colors of a new Custom colorway; the person changes them. */
 export const CUSTOM_DEFAULTS: Omit<CustomDraft, 'name'> = { body: '#4a6572', lid: '#dbe4e8', accent: '#e07a5f' };
@@ -108,6 +111,9 @@ export function registerReducer(state: RegisterState, action: RegisterAction): R
       return { ...state, overrides: { ...state.overrides, [action.slot]: action.hex } };
     case 'setNickname':
       return { ...state, nickname: action.nickname };
+    case 'goTo':
+      // Only backwards: the person cannot skip ahead to a step whose answer is still missing.
+      return STEP_ORDER.indexOf(action.step) < STEP_ORDER.indexOf(state.step) ? { ...state, step: action.step } : state;
     case 'next':
       if ((state.step === 'colorway' || state.step === 'custom') && canContinue(state)) return { ...state, step: 'nickname' };
       return state;

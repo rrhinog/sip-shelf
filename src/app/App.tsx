@@ -1,27 +1,23 @@
 import { useEffect, useState } from 'react';
 import { CATALOG_URL, loadCatalog } from '../catalog/catalog';
-import type { Bottle, Catalog } from '../domain/types';
+import type { Catalog, NewBottle } from '../domain/types';
 import { applyTheme, themeForBottle } from '../theme/forBottle';
-import { RegisterBottle } from './RegisterBottle';
+import { AboutPlaceholder } from './AboutPlaceholder';
+import { RegisterScreen } from './screens/RegisterScreen';
+import { ShelfScreen } from './screens/ShelfScreen';
+import { TabBar, type Tab } from './ui/TabBar';
 import { useColorScheme } from './useColorScheme';
 import { useShelf } from './useShelf';
 
-function label(bottle: Bottle, catalog: Catalog): string {
-  const { colorway } = bottle;
-  const colorwayName =
-    colorway.kind === 'custom'
-      ? colorway.name
-      : (catalog.colorways.find((c) => c.id === colorway.colorwayId)?.name ?? 'Unknown colorway');
-  const modelName = catalog.models.find((m) => m.id === bottle.modelId)?.name ?? bottle.modelId;
-  const base = `${colorwayName}, ${modelName} ${bottle.sizeOz} oz`;
-  return bottle.nickname ? `${bottle.nickname} (${base})` : base;
-}
+/** Where the person is: one of the main tabs, or the Register flow (a focused task that hides the tabs). */
+type View = Tab | 'register';
 
 export function App() {
   const shelf = useShelf();
   const scheme = useColorScheme();
   const [catalog, setCatalog] = useState<Catalog | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [view, setView] = useState<View>('shelf');
 
   useEffect(() => {
     loadCatalog(CATALOG_URL)
@@ -35,43 +31,33 @@ export function App() {
     applyTheme(document.documentElement, themeForBottle(shelf.active, catalog, scheme));
   }, [catalog, shelf.loaded, shelf.active, scheme]);
 
-  if (error) return <main role="alert">{error}</main>;
-  if (!catalog || !shelf.loaded) return <main>Loading...</main>;
+  if (error) return <main role="alert" className="plain-text">{error}</main>;
+  if (!catalog || !shelf.loaded) return <main className="plain-text">Loading...</main>;
+
+  async function register(bottle: NewBottle) {
+    await shelf.add(bottle);
+    setView('shelf');
+  }
 
   return (
-    <main>
-      <h1>Sip Shelf</h1>
-      <section aria-labelledby="shelf-heading">
-        <h2 id="shelf-heading">Shelf</h2>
-        {shelf.bottles.length === 0 ? (
-          <p>No bottles yet. Register one below.</p>
+    <div className="app">
+      <main>
+        {view === 'register' ? (
+          <RegisterScreen catalog={catalog} onSave={register} onLeave={() => setView('shelf')} />
+        ) : view === 'about' ? (
+          <AboutPlaceholder />
         ) : (
-          <ul>
-            {shelf.bottles.map((bottle) => {
-              const isActive = shelf.active?.id === bottle.id;
-              return (
-                <li key={bottle.id} aria-current={isActive ? 'true' : undefined}>
-                  {label(bottle, catalog)} {isActive ? <strong>Active</strong> : null}{' '}
-                  {isActive ? null : (
-                    <button type="button" onClick={() => void shelf.setActive(bottle.id)}>
-                      Make active
-                    </button>
-                  )}{' '}
-                  <button type="button" onClick={() => void shelf.remove(bottle.id)}>
-                    Remove
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
+          <ShelfScreen
+            catalog={catalog}
+            bottles={shelf.bottles}
+            active={shelf.active}
+            onAdd={() => setView('register')}
+            onSetActive={shelf.setActive}
+            onRemove={shelf.remove}
+          />
         )}
-      </section>
-      <RegisterBottle catalog={catalog} onAdd={shelf.add} />
-      <footer>
-        <p>
-          <small>Sip Shelf is not affiliated with Owala. {catalog.source}</small>
-        </p>
-      </footer>
-    </main>
+      </main>
+      {view === 'register' ? null : <TabBar current={view} onSelect={setView} />}
+    </div>
   );
 }

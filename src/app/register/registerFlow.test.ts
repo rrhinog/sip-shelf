@@ -100,6 +100,26 @@ describe('the register flow', () => {
   });
 });
 
+describe('jumping back to an earlier step', () => {
+  const atColorway = run(
+    { type: 'chooseModel', modelId: 'freesip' },
+    { type: 'chooseSize', sizeOz: 24 },
+    { type: 'chooseColorway', colorwayId: 'read-my-lips' },
+  );
+
+  it('goes to the Model or Size step and keeps everything chosen', () => {
+    const s = registerReducer(atColorway, { type: 'goTo', step: 'model' });
+    expect(s.step).toBe('model');
+    expect(s.colorwayId).toBe('read-my-lips');
+    expect(registerReducer(atColorway, { type: 'goTo', step: 'size' }).step).toBe('size');
+  });
+
+  it('never jumps forward past what was chosen', () => {
+    const atSize = run({ type: 'chooseModel', modelId: 'freesip' });
+    expect(registerReducer(atSize, { type: 'goTo', step: 'colorway' }).step).toBe('size');
+  });
+});
+
 describe('a Custom colorway', () => {
   const atColorway = run({ type: 'chooseModel', modelId: 'freesip' }, { type: 'chooseSize', sizeOz: 24 });
 
