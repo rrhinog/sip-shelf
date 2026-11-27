@@ -4,7 +4,7 @@ An open-source companion app for Owala water bottles. Register the bottles you o
 
 **Sip Shelf is not affiliated with Owala.** Owala is a trademark of its owner.
 
-> Status: early foundation. The catalog currently holds five made-up fixture colorways, not real Owala data.
+> Status: early foundation. The catalog holds 295 real Owala colorways ([where the data came from](data/README.md)); 86 of them have no sampled colors yet and show a neutral color.
 
 ## Run it
 
@@ -20,6 +20,7 @@ npm run dev        # http://localhost:4252/sip-shelf/
 | Command | What it does |
 |---|---|
 | `npm run dev` | Dev server on port 4252 |
+| `npm run build:catalog` | Rebuild `public/catalog.json` from `data/*.csv` |
 | `npm run build` | Typecheck and build to `dist/` |
 | `npm run lint` | ESLint |
 | `npm run typecheck` | TypeScript, no emit |

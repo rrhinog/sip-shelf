@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 // A free port in the scratch range 4900-4999 (Y:\Keystone\docs\ports.md); the dev server uses 4252.
-const PORT = 4950;
+const PORT = Number(process.env.E2E_PORT ?? 4950);
 
 export default defineConfig({
   testDir: 'e2e',

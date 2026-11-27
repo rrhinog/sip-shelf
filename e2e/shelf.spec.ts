@@ -22,53 +22,60 @@ test('starts with an empty shelf and says it is not affiliated with Owala', asyn
 });
 
 test('only offers the colorways sold on the chosen model and size', async ({ page }) => {
-  await page.getByLabel('Model').selectOption({ label: 'Twist (fixture)' });
-  await page.getByLabel('Size').selectOption({ label: '24 oz' });
+  await page.getByLabel('Model').selectOption({ label: 'SmoothSip Slider' });
+  await page.getByLabel('Size').selectOption({ label: '12 oz' });
   const options = await page.getByLabel('Colorway').locator('option').allTextContents();
-  expect(options).toEqual(['Choose a colorway', 'Fixture Lagoon', 'Fixture Dusk']);
+  expect(options).toContain('Plaid and Simple'); // sold on the Slider in 12 oz
+  expect(options).not.toContain('Rapunzel'); // a FreeSip-only colorway
+});
+
+test('an unsampled colorway can still be registered, and themes the app in the neutral color', async ({ page }) => {
+  await registerBottle(page, 'FreeSip', '24 oz', 'Antique Charm');
+  await expect(page.getByRole('listitem')).toContainText('Antique Charm, FreeSip 24 oz');
+  await expect.poll(() => cssVar(page, '--color-primary')).toBe('#4a6572');
 });
 
 test('registers a bottle: it shows on the shelf as Active and themes the app', async ({ page }) => {
-  await registerBottle(page, 'FreeSip (fixture)', '24 oz', 'Fixture Lagoon', 'Desk bottle');
+  await registerBottle(page, 'FreeSip', '24 oz', 'Read My Lips', 'Desk bottle');
   const item = page.getByRole('listitem').filter({ hasText: 'Desk bottle' });
-  await expect(item).toContainText('Fixture Lagoon, FreeSip (fixture) 24 oz');
+  await expect(item).toContainText('Read My Lips, FreeSip 24 oz');
   await expect(item).toContainText('Active');
-  await expect.poll(() => cssVar(page, '--color-primary')).toBe('#2f7fa8');
+  await expect.poll(() => cssVar(page, '--color-primary')).toBe('#d70484');
 });
 
 test('the second bottle is not Active until chosen, and choosing it re-themes the app', async ({ page }) => {
-  await registerBottle(page, 'FreeSip (fixture)', '24 oz', 'Fixture Lagoon');
-  await registerBottle(page, 'FreeSip (fixture)', '32 oz', 'Fixture Meadow');
+  await registerBottle(page, 'FreeSip', '24 oz', 'Read My Lips');
+  await registerBottle(page, 'FreeSip', '32 oz', 'Burgundy Bay');
   await expect(page.getByRole('listitem')).toHaveCount(2);
-  await expect.poll(() => cssVar(page, '--color-primary')).toBe('#2f7fa8');
+  await expect.poll(() => cssVar(page, '--color-primary')).toBe('#d70484');
 
-  await page.getByRole('listitem').filter({ hasText: 'Fixture Meadow' }).getByRole('button', { name: 'Make active' }).click();
-  await expect.poll(() => cssVar(page, '--color-primary')).toBe('#4f9d69');
-  await expect(page.getByRole('listitem').filter({ hasText: 'Fixture Meadow' })).toContainText('Active');
+  await page.getByRole('listitem').filter({ hasText: 'Burgundy Bay' }).getByRole('button', { name: 'Make active' }).click();
+  await expect.poll(() => cssVar(page, '--color-primary')).toBe('#5f191f');
+  await expect(page.getByRole('listitem').filter({ hasText: 'Burgundy Bay' })).toContainText('Active');
 });
 
 test('keeps the shelf and the Active bottle after a reload', async ({ page }) => {
-  await registerBottle(page, 'FreeSip (fixture)', '24 oz', 'Fixture Lagoon');
-  await registerBottle(page, 'FreeSip (fixture)', '32 oz', 'Fixture Meadow');
-  await page.getByRole('listitem').filter({ hasText: 'Fixture Meadow' }).getByRole('button', { name: 'Make active' }).click();
+  await registerBottle(page, 'FreeSip', '24 oz', 'Read My Lips');
+  await registerBottle(page, 'FreeSip', '32 oz', 'Burgundy Bay');
+  await page.getByRole('listitem').filter({ hasText: 'Burgundy Bay' }).getByRole('button', { name: 'Make active' }).click();
   await page.reload();
   await expect(page.getByRole('listitem')).toHaveCount(2);
-  await expect(page.getByRole('listitem').filter({ hasText: 'Fixture Meadow' })).toContainText('Active');
-  await expect.poll(() => cssVar(page, '--color-primary')).toBe('#4f9d69');
+  await expect(page.getByRole('listitem').filter({ hasText: 'Burgundy Bay' })).toContainText('Active');
+  await expect.poll(() => cssVar(page, '--color-primary')).toBe('#5f191f');
 });
 
 test('removing the Active bottle hands the theme to the next one', async ({ page }) => {
-  await registerBottle(page, 'FreeSip (fixture)', '24 oz', 'Fixture Lagoon');
-  await registerBottle(page, 'FreeSip (fixture)', '32 oz', 'Fixture Meadow');
-  await page.getByRole('listitem').filter({ hasText: 'Fixture Lagoon' }).getByRole('button', { name: 'Remove' }).click();
+  await registerBottle(page, 'FreeSip', '24 oz', 'Read My Lips');
+  await registerBottle(page, 'FreeSip', '32 oz', 'Burgundy Bay');
+  await page.getByRole('listitem').filter({ hasText: 'Read My Lips' }).getByRole('button', { name: 'Remove' }).click();
   await expect(page.getByRole('listitem')).toHaveCount(1);
-  await expect.poll(() => cssVar(page, '--color-primary')).toBe('#4f9d69');
+  await expect.poll(() => cssVar(page, '--color-primary')).toBe('#5f191f');
 });
 
 test.describe('follows the phone light and dark setting', () => {
   test('light', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'light' });
-    await registerBottle(page, 'FreeSip (fixture)', '24 oz', 'Fixture Lagoon');
+    await registerBottle(page, 'FreeSip', '24 oz', 'Read My Lips');
     await expect.poll(() => cssVar(page, 'color-scheme')).toBe('light');
     const bg = await cssVar(page, '--color-bg');
     // Switching the phone to dark re-themes live, without a reload.
@@ -94,6 +101,6 @@ test('works offline after the first visit', async ({ page, context }) => {
   await context.setOffline(true);
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Sip Shelf' })).toBeVisible();
-  await registerBottle(page, 'Twist (fixture)', '24 oz', 'Fixture Dusk');
-  await expect(page.getByRole('listitem')).toContainText('Fixture Dusk');
+  await registerBottle(page, 'FreeSip Twist', '24 oz', 'Candy Cane');
+  await expect(page.getByRole('listitem')).toContainText('Candy Cane');
 });
