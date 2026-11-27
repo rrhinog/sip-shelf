@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import fixture from '../catalog/catalog.fixture.json';
+import { readFileSync } from 'node:fs';
 import { parseCatalog } from '../catalog/catalog';
-import type { Bottle } from './types';
+import type { Bottle } from '../domain/types';
 import { describeBottle } from './describeBottle';
 
-const catalog = parseCatalog(fixture);
+const catalog = parseCatalog(JSON.parse(readFileSync('src/catalog/catalog.fixture.json', 'utf8')) as unknown);
 
 const base: Bottle = {
   id: 'b1',
