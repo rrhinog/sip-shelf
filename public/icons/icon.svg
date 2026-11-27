@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <title>Sip Shelf</title>
+  <!-- Full-bleed square so it works as a maskable icon; the mark stays inside the central safe zone. -->
+  <rect width="512" height="512" fill="#fff1d6"/>
+  <!-- Shelf plank -->
+  <rect x="108" y="346" width="296" height="34" rx="17" fill="#8a5a2b" stroke="#22201c" stroke-width="8"/>
+  <rect x="108" y="346" width="296" height="14" rx="7" fill="#c98f4e"/>
+  <!-- Bottle: handle loop, lid, accent tab, body, shine -->
+  <g transform="translate(190 93) scale(2.2)">
+    <path d="M23 15 C23 3, 37 3, 37 15" fill="none" stroke="#22201c" stroke-width="7.5" stroke-linecap="round"/>
+    <path d="M23 15 C23 3, 37 3, 37 15" fill="none" stroke="#f2c14e" stroke-width="4" stroke-linecap="round"/>
+    <rect x="10" y="35" width="40" height="82" rx="15" fill="#2f7f86" stroke="#22201c" stroke-width="2.4"/>
+    <rect x="12" y="13" width="36" height="21" rx="9" fill="#f2c14e" stroke="#22201c" stroke-width="2.4"/>
+    <rect x="31" y="17" width="11" height="9" rx="4" fill="#e4572e" stroke="#22201c" stroke-width="1.8"/>
+    <path d="M17 48 V72" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity="0.55"/>
+  </g>
+</svg>
