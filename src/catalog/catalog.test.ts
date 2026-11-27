@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
 import { colorwaysFor, loadCatalog, parseCatalog, sizesFor } from './catalog';
 
-const fixtureJson = JSON.parse(readFileSync('public/catalog.fixture.json', 'utf8')) as unknown;
+const fixtureJson = JSON.parse(readFileSync('src/catalog/catalog.fixture.json', 'utf8')) as unknown;
 
 const minimal = () => ({
   source: 'test',

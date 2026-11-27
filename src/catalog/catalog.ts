@@ -2,7 +2,7 @@ import type { Catalog, Colorway, Confidence, Model, Offering, Palette } from '..
 import { isHexColor, parseHex, toHex } from '../theme/contrast';
 
 /** Where the app loads its Catalog from (relative to the deployed base path). */
-export const CATALOG_URL = `${import.meta.env.BASE_URL}catalog.fixture.json`;
+export const CATALOG_URL = `${import.meta.env.BASE_URL}catalog.json`;
 
 function fail(message: string): never {
   throw new Error(`Invalid catalog: ${message}`);

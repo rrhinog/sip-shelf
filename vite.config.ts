@@ -12,7 +12,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['catalog.fixture.json', 'icon.svg'],
+      includeAssets: ['catalog.json', 'icon.svg'],
       manifest: {
         name: 'Sip Shelf',
         short_name: 'Sip Shelf',
