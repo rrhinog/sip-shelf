@@ -91,6 +91,41 @@ describe('the Shelf', () => {
     expect((await shelf.getActiveBottle())?.id).toBe(a.id);
   });
 
+  it('saves Overrides for one Bottle and returns the updated Bottle', async () => {
+    const a = await shelf.addBottle(lagoon);
+    const b = await shelf.addBottle(meadow);
+    const updated = await shelf.setOverrides(a.id, { body: '#112233', accent: '#ff8800' });
+    expect(updated.overrides).toEqual({ body: '#112233', accent: '#ff8800' });
+    const [stored, other] = await shelf.listBottles();
+    expect(stored).toEqual(updated);
+    expect(other).toEqual(b);
+  });
+
+  it('replaces all of a Bottle’s Overrides at once, so passing none resets it', async () => {
+    const a = await shelf.addBottle({ ...lagoon, overrides: { lid: '#abcdef' } });
+    await shelf.setOverrides(a.id, { body: '#112233' });
+    expect((await shelf.listBottles())[0]?.overrides).toEqual({ body: '#112233' });
+    await shelf.setOverrides(a.id, {});
+    expect((await shelf.listBottles())[0]?.overrides).toEqual({});
+  });
+
+  it('keeps Overrides after the Shelf is closed and opened again, and leaves the Active bottle alone', async () => {
+    const a = await shelf.addBottle(lagoon);
+    const b = await shelf.addBottle(meadow);
+    await shelf.setOverrides(b.id, { lid: '#445566' });
+    shelf.close();
+    const reopened = openShelf(name);
+    expect((await reopened.listBottles())[1]?.overrides).toEqual({ lid: '#445566' });
+    expect((await reopened.getActiveBottle())?.id).toBe(a.id);
+  });
+
+  it('refuses Overrides for a Bottle that is not on the Shelf, or colors that are not hex', async () => {
+    const a = await shelf.addBottle(lagoon);
+    await expect(shelf.setOverrides('ghost', { body: '#112233' })).rejects.toThrow(/not on the shelf/i);
+    await expect(shelf.setOverrides(a.id, { body: 'red' })).rejects.toThrow(/hex color/i);
+    expect((await shelf.listBottles())[0]?.overrides).toEqual({});
+  });
+
   it('removes a Bottle', async () => {
     const a = await shelf.addBottle(lagoon);
     const b = await shelf.addBottle(meadow);

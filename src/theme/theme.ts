@@ -46,20 +46,24 @@ export function buildTheme(palette: Palette, scheme: Scheme): ThemeVars {
 
   const bg = mix(page, body, scheme === 'light' ? 0.1 : 0.14);
   const surface = mix(page, body, scheme === 'light' ? 0.18 : 0.24);
+  // Cards, chips and sheets: white paper in light mode, the surface in dark mode.
+  const paper = scheme === 'light' ? LIGHT_PAGE : surface;
+  const onPage = [bg, surface, paper];
 
   return {
     'color-scheme': scheme,
     '--color-bg': bg,
     '--color-surface': surface,
-    // Text that must read on both the page and the surface.
-    '--color-text': ensureContrast(readableText(bg), [bg, surface]),
+    '--color-paper': paper,
+    // Text that must read on the page, the surface and the paper.
+    '--color-text': ensureContrast(readableText(bg), onPage),
     '--color-primary': body,
     '--color-on-primary': readableText(body),
     '--color-secondary': lid,
     '--color-on-secondary': readableText(lid),
     '--color-accent': accent,
     '--color-on-accent': readableText(accent),
-    // The accent used as text (links) on the page or surface, nudged until it reads on both.
-    '--color-link': ensureContrast(accent, [bg, surface]),
+    // The accent used as text (links) on the page, surface or paper, nudged until it reads on all.
+    '--color-link': ensureContrast(accent, onPage),
   };
 }

@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { parseCatalog } from '../catalog/catalog';
 import type { Bottle } from '../domain/types';
-import { applyTheme, DEFAULT_PALETTE, paletteForBottle, themeForBottle } from './forBottle';
+import { applyTheme, applyThemeColor, DEFAULT_PALETTE, paletteForBottle, themeForBottle } from './forBottle';
 
 const catalog = parseCatalog(JSON.parse(readFileSync('src/catalog/catalog.fixture.json', 'utf8')));
 
@@ -57,5 +57,22 @@ describe('applyTheme', () => {
     expect(el.style.getPropertyValue('--color-bg')).toBe('#101012');
     expect(el.style.getPropertyValue('--color-text')).toBe('#ffffff');
     expect(el.style.getPropertyValue('color-scheme')).toBe('dark');
+  });
+});
+
+describe('applyThemeColor', () => {
+  it('paints the browser bar (the theme-color tags) in the Active bottle’s body color', () => {
+    document.head.innerHTML =
+      '<meta name="theme-color" content="#fff1d6" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#101012" media="(prefers-color-scheme: dark)">';
+    applyThemeColor(document, { '--color-primary': '#d70484' });
+    const tags = [...document.querySelectorAll('meta[name="theme-color"]')];
+    expect(tags).toHaveLength(2);
+    for (const tag of tags) expect(tag.getAttribute('content')).toBe('#d70484');
+  });
+
+  it('adds the tag when the page has none', () => {
+    document.head.innerHTML = '';
+    applyThemeColor(document, { '--color-primary': '#123456' });
+    expect(document.querySelector('meta[name="theme-color"]')?.getAttribute('content')).toBe('#123456');
   });
 });

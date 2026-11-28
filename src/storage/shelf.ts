@@ -2,7 +2,8 @@
 // nothing else imports Dexie or touches IndexedDB (an ESLint rule enforces it).
 // Swapping or syncing storage later means changing this file, not the app.
 import Dexie, { type EntityTable } from 'dexie';
-import type { Bottle, NewBottle } from '../domain/types';
+import type { Bottle, NewBottle, Overrides } from '../domain/types';
+import { isHexColor } from '../theme/contrast';
 
 export interface Shelf {
   /** Add a Bottle. The first Bottle added to an empty Shelf becomes the Active bottle. */
@@ -11,6 +12,8 @@ export interface Shelf {
   listBottles(): Promise<Bottle[]>;
   /** Remove a Bottle (no-op if absent). Removing the Active bottle hands the role to the oldest remaining one. */
   removeBottle(id: string): Promise<void>;
+  /** Replace a Bottle's Overrides (pass {} to reset them all); returns the updated Bottle. Throws if it is not on the Shelf or a color is not hex. */
+  setOverrides(id: string, overrides: Overrides): Promise<Bottle>;
   /** Choose the Active bottle. Throws if that Bottle is not on the Shelf. */
   setActiveBottle(id: string): Promise<void>;
   /** The Active bottle, or null when the Shelf is empty. */
@@ -79,6 +82,19 @@ export function openShelf(dbName: string = DEFAULT_DB_NAME): Shelf {
         const next = (await oldestFirst())[0];
         if (next) await db.meta.put({ key: ACTIVE_KEY, value: next.id });
         else await db.meta.delete(ACTIVE_KEY);
+      });
+    },
+
+    setOverrides(id, overrides) {
+      for (const [slot, color] of Object.entries(overrides)) {
+        if (!isHexColor(color)) return Promise.reject(new Error(`The ${slot} override is not a hex color: ${JSON.stringify(color)}`));
+      }
+      return db.transaction('rw', db.bottles, async () => {
+        const bottle = await db.bottles.get(id);
+        if (!bottle) throw new Error(`Bottle ${id} is not on the shelf`);
+        const updated: Bottle = { ...bottle, overrides: { ...overrides } };
+        await db.bottles.put(updated);
+        return updated;
       });
     },
 

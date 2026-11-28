@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { Bottle, NewBottle } from '../domain/types';
+import type { Bottle, NewBottle, Overrides } from '../domain/types';
 import { openShelf } from '../storage/shelf';
 
 export interface ShelfState {
@@ -9,6 +9,7 @@ export interface ShelfState {
   add(input: NewBottle): Promise<void>;
   remove(id: string): Promise<void>;
   setActive(id: string): Promise<void>;
+  setOverrides(id: string, overrides: Overrides): Promise<void>;
 }
 
 /** The Shelf as React state. Every change goes through the storage module, then re-reads it. */
@@ -41,6 +42,10 @@ export function useShelf(): ShelfState {
     },
     remove: async (id) => {
       await shelf.removeBottle(id);
+      await refresh();
+    },
+    setOverrides: async (id, overrides) => {
+      await shelf.setOverrides(id, overrides);
       await refresh();
     },
     setActive: async (id) => {

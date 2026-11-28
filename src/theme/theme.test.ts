@@ -48,6 +48,8 @@ describe('buildTheme', () => {
       const pairs: [string, string][] = [
         ['--color-text', '--color-bg'],
         ['--color-text', '--color-surface'],
+        ['--color-text', '--color-paper'],
+        ['--color-link', '--color-paper'],
         ['--color-link', '--color-bg'],
         ['--color-link', '--color-surface'],
         ['--color-on-primary', '--color-primary'],
@@ -65,6 +67,12 @@ describe('buildTheme', () => {
       expect(luminance(buildTheme(p, 'light')['--color-bg'] as string)).toBeGreaterThan(0.6);
       expect(luminance(buildTheme(p, 'dark')['--color-bg'] as string)).toBeLessThan(0.1);
     }
+  });
+
+  it('gives cards and chips a paper color: white in light mode, the surface in dark mode', () => {
+    expect(buildTheme({ body: '#123456' }, 'light')['--color-paper']).toBe('#ffffff');
+    const dark = buildTheme({ body: '#123456' }, 'dark');
+    expect(dark['--color-paper']).toBe(dark['--color-surface']);
   });
 
   it('tints the page with the body color', () => {
@@ -91,6 +99,9 @@ describe('buildTheme across the whole color space', () => {
         for (const bg of ['--color-bg', '--color-surface']) {
           expect(contrastRatio(v['--color-text'] as string, v[bg] as string)).toBeGreaterThanOrEqual(MIN_TEXT_CONTRAST);
           expect(contrastRatio(v['--color-link'] as string, v[bg] as string)).toBeGreaterThanOrEqual(MIN_TEXT_CONTRAST);
+        }
+        for (const fg of ['--color-text', '--color-link']) {
+          expect(contrastRatio(v[fg] as string, v['--color-paper'] as string)).toBeGreaterThanOrEqual(MIN_TEXT_CONTRAST);
         }
         expect(contrastRatio(v['--color-on-primary'] as string, color)).toBeGreaterThanOrEqual(MIN_TEXT_CONTRAST);
         checked++;

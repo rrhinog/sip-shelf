@@ -63,3 +63,18 @@ describe('describeBottle', () => {
     expect(d.detail).toBe('gone · 24 oz');
   });
 });
+
+describe('describeBottle and Overrides', () => {
+  it('keeps the Palette before Overrides, and says which colors were replaced', () => {
+    const d = describeBottle({ ...base, overrides: { lid: '#ffffff' } }, catalog);
+    expect(d.basePalette).toEqual({ body: '#2f7fa8', lid: '#f2d16b', accent: '#e0645c' });
+    expect(d.palette.lid).toBe('#ffffff');
+    expect(d.overridden).toEqual({ body: false, lid: true, accent: false });
+  });
+
+  it('says nothing is overridden for a Bottle without Overrides', () => {
+    const d = describeBottle(base, catalog);
+    expect(d.overridden).toEqual({ body: false, lid: false, accent: false });
+    expect(d.basePalette).toEqual(d.palette);
+  });
+});
